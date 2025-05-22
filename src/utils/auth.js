@@ -41,7 +41,7 @@ export function loginUser(username, password) {
 
 // Logout user
 export function logoutUser() {
-  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem("user");
 }
 
 export function updateUserProfile(profile) {
