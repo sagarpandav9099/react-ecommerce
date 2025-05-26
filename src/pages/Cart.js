@@ -4,16 +4,35 @@ import CartItem from "../components/CartItem";
 import OrderSummary from "../components/OrderSummary";
 import CheckoutForm from "../components/CheckoutForm";
 import EmptyCartMessage from "../components/EmptyCartMessage";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Cart() {
-  const { cart, removeFromCart, increaseQty, decreaseQty } = useCart();
-  const totalBeforeDiscount = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const { cart, removeFromCart, increaseQty, decreaseQty, clearCart } =
+    useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartWith2PercentDiscount = cart.map((item) => {
+    const discountedPrice = item.price * 0.98; // 2% off
+    return {
+      ...item,
+      discountedPrice,
+      subtotal: discountedPrice * item.quantity,
+    };
+  });
+
+  // 2. Calculate total before any additional discount
+  const totalBeforeExtraDiscount = cartWith2PercentDiscount.reduce(
+    (sum, item) => sum + item.subtotal,
     0
   );
-  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const discount = totalBeforeDiscount > 1000 ? totalBeforeDiscount * 0.1 : 0;
-  const totalAfterDiscount = totalBeforeDiscount - discount;
+
+  // 3. Apply 10% extra discount if total is above 100000
+  const extraDiscount =
+    totalBeforeExtraDiscount > 1000 ? totalBeforeExtraDiscount * 0.1 : 0;
+  const totalAfterDiscount = totalBeforeExtraDiscount - extraDiscount;
 
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
   const [checkoutData, setCheckoutData] = useState({
@@ -40,6 +59,7 @@ export default function Cart() {
 
     const order = {
       id: Date.now(),
+      user: user.username,
       name: checkoutData.name,
       address: checkoutData.address,
       cardNumber: checkoutData.cardNumber.slice(-4),
@@ -52,9 +72,9 @@ export default function Cart() {
     existingOrders.push(order);
     localStorage.setItem("orders", JSON.stringify(existingOrders));
     localStorage.removeItem("cart");
-
+    clearCart();
     alert("Thank you for your order!");
-    window.location.href = "/my-orders";
+    navigate("/my-orders");
   };
 
   return (
@@ -79,10 +99,10 @@ export default function Cart() {
           </div>
           <div>
             <OrderSummary
-              cart={cart}
+              cart={cartWith2PercentDiscount}
               totalQuantity={totalQuantity}
-              totalBeforeDiscount={totalBeforeDiscount}
-              discount={discount}
+              totalBeforeDiscount={totalBeforeExtraDiscount}
+              discount={extraDiscount}
               totalAfterDiscount={totalAfterDiscount}
               onCheckoutClick={() => setShowCheckoutForm(true)}
             />

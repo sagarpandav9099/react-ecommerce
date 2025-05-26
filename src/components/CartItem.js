@@ -1,9 +1,15 @@
+import useCountryCurrency from "../context/CountryCurrency";
+import { getDiscountedPrice, formatCurrency } from "../utils/priceUtils";
+
 export default function CartItem({
   item,
   increaseQty,
   decreaseQty,
   removeFromCart,
 }) {
+  const { currency } = useCountryCurrency();
+  const actualPrice = item.price;
+  const discountedPrice = getDiscountedPrice(actualPrice, 2);
   return (
     <div className="flex items-center justify-between bg-white shadow rounded-lg p-4">
       <div className="flex items-center gap-4">
@@ -14,7 +20,16 @@ export default function CartItem({
         />
         <div>
           <h3 className="text-lg font-semibold">{item.title}</h3>
-          <p className="text-gray-700">Price: ${item.price}</p>
+          <p className="text-gray-700">
+            Price:{" "}
+            <span className="text-sm text-gray-500  line-through">
+              {formatCurrency(actualPrice, currency)}
+            </span>
+            {/* Discounted Price */}
+            <span className="text-green-600 ps-3 font-bold text-md">
+              {formatCurrency(discountedPrice, currency)}
+            </span>
+          </p>
           <p className="text-gray-600 flex items-center gap-2">
             Quantity:
             <button
@@ -42,7 +57,7 @@ export default function CartItem({
             </button>
           </p>
           <p className="text-black font-semibold">
-            Subtotal: ${(item.price * item.quantity).toFixed(2)}
+            Subtotal: {formatCurrency(discountedPrice * item.quantity)}
           </p>
         </div>
       </div>

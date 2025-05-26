@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
+
 import { CartProvider } from "./context/CartContext";
 import PrivateRoute from "./components/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
@@ -52,14 +52,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route
-              path="/checkout"
-              element={
-                <PrivateRoute>
-                  <Checkout />
-                </PrivateRoute>
-              }
-            />
+
             <Route
               path="/my-orders"
               element={
