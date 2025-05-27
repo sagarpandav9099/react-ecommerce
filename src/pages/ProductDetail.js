@@ -4,6 +4,8 @@ import { useCart } from "../context/CartContext";
 import useCountryCurrency from "../context/CountryCurrency";
 import { getDiscountedPrice, formatCurrency } from "../utils/priceUtils";
 import PriceWithDiscount from "../components/PriceWithDiscount";
+import { FaStar } from "react-icons/fa";
+import RatingInput from "../components/RatingInput";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -11,6 +13,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const { addToCart, cart } = useCart();
+  const [userRating, setUserRating] = useState(null);
 
   const { currency } = useCountryCurrency();
 
@@ -18,6 +21,11 @@ const ProductDetail = () => {
     fetch(`https://fakestoreapi.com/products/${id}`)
       .then((res) => res.json())
       .then((data) => setProduct(data));
+  }, [id]);
+
+  useEffect(() => {
+    const savedRating = localStorage.getItem(`rating-${id}`);
+    if (savedRating) setUserRating(parseInt(savedRating));
   }, [id]);
 
   const increase = () => setQuantity((prev) => prev + 1);
@@ -44,10 +52,44 @@ const ProductDetail = () => {
         />
       </div>
 
-      <div className="flex flex-col justify-between space-y-4">
+      <div className="flex flex-col space-y-4">
         <div>
           <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
           <p className="text-gray-700 text-sm mb-4">{product.description}</p>
+          <div className="flex justify-between items-center gap-4 mb-5">
+            <div className="flex items-center text-yellow-400 text-sm font-medium space-x-2">
+                <span>
+                {(
+                    (product.rating.rate * product.rating.count + (userRating || 0)) /
+                    (product.rating.count + (userRating ? 1 : 0))
+                ).toFixed(1)}
+                </span>
+                <FaStar />
+                <span className="text-blue-400 text-xs">
+                ({product.rating.count + (userRating ? 1 : 0)}{" "}
+                 reviews)
+                </span>
+            </div>
+            {userRating && (
+                <span className="text-green-600 text-xs ml-2">
+                    ✅ You rated this {userRating} ⭐
+                </span>
+                )}
+            
+            {!userRating && (
+                <div className="flex items-center text-sm text-gray-700 space-x-2">
+                <span>Add rating:</span>
+                <RatingInput
+                    productId={product.id}
+                    onRate={(rating) => {
+                    setUserRating(rating);
+                    localStorage.setItem(`rating-${product.id}`, rating);
+                    }}
+                />
+                </div>
+                )}
+            </div>
+
 
           {/* Price & Quantity */}
           <div className="space-y-3 mb-6">
