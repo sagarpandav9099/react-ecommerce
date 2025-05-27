@@ -1,4 +1,9 @@
-export const getDiscountedPrice = (price, discountPercent = 2) => {
+import { DEFAULT_DISCOUNT_PERCENT } from "../config/discountConfig";
+
+export const getDiscountedPrice = (
+  price,
+  discountPercent = DEFAULT_DISCOUNT_PERCENT
+) => {
   const discountAmount = (price * discountPercent) / 100;
   return price - discountAmount;
 };

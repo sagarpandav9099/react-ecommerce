@@ -1,5 +1,6 @@
 import useCountryCurrency from "../context/CountryCurrency";
 import { getDiscountedPrice, formatCurrency } from "../utils/priceUtils";
+import PriceWithDiscount from "./PriceWithDiscount";
 
 export default function CartItem({
   item,
@@ -21,14 +22,7 @@ export default function CartItem({
         <div>
           <h3 className="text-lg font-semibold">{item.title}</h3>
           <p className="text-gray-700">
-            Price:{" "}
-            <span className="text-sm text-gray-500  line-through">
-              {formatCurrency(actualPrice, currency)}
-            </span>
-            {/* Discounted Price */}
-            <span className="text-green-600 ps-3 font-bold text-md">
-              {formatCurrency(discountedPrice, currency)}
-            </span>
+            Price: <PriceWithDiscount price={item.price} currency={currency} />
           </p>
           <p className="text-gray-600 flex items-center gap-2">
             Quantity:
@@ -57,7 +51,8 @@ export default function CartItem({
             </button>
           </p>
           <p className="text-black font-semibold">
-            Subtotal: {formatCurrency(discountedPrice * item.quantity)}
+            Subtotal:{" "}
+            {formatCurrency(discountedPrice * item.quantity, currency)}
           </p>
         </div>
       </div>

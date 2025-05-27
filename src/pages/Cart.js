@@ -6,6 +6,7 @@ import CheckoutForm from "../components/CheckoutForm";
 import EmptyCartMessage from "../components/EmptyCartMessage";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { getDiscountedPrice } from "../utils/priceUtils";
 
 export default function Cart() {
   const { cart, removeFromCart, increaseQty, decreaseQty, clearCart } =
@@ -14,8 +15,9 @@ export default function Cart() {
   const navigate = useNavigate();
 
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+  // 1. Apply 2% discount to each item
   const cartWith2PercentDiscount = cart.map((item) => {
-    const discountedPrice = item.price * 0.98; // 2% off
+    const discountedPrice = getDiscountedPrice(item.price); // 2% by default
     return {
       ...item,
       discountedPrice,
@@ -23,15 +25,16 @@ export default function Cart() {
     };
   });
 
-  // 2. Calculate total before any additional discount
+  // 2. Calculate total before extra discount
   const totalBeforeExtraDiscount = cartWith2PercentDiscount.reduce(
     (sum, item) => sum + item.subtotal,
     0
   );
 
-  // 3. Apply 10% extra discount if total is above 100000
+  // 3. Apply 10% extra discount if total > 100000
   const extraDiscount =
-    totalBeforeExtraDiscount > 1000 ? totalBeforeExtraDiscount * 0.1 : 0;
+    totalBeforeExtraDiscount > 100000 ? totalBeforeExtraDiscount * 0.1 : 0;
+
   const totalAfterDiscount = totalBeforeExtraDiscount - extraDiscount;
 
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import useCountryCurrency from "../context/CountryCurrency";
 import { getDiscountedPrice, formatCurrency } from "../utils/priceUtils";
+import PriceWithDiscount from "../components/PriceWithDiscount";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -52,14 +53,7 @@ const ProductDetail = () => {
           <div className="space-y-3 mb-6">
             {/* Unit Price */}
             <div className="flex justify-between items-center text-base md:text-lg">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-400 line-through">
-                  {formatCurrency(actualPrice, currency)}
-                </span>
-                <span className="text-green-600 font-semibold text-md md:text-lg">
-                  {formatCurrency(discountedPrice, currency)}
-                </span>
-              </div>
+              <PriceWithDiscount price={product.price} currency={currency} />
               <div className="flex items-center gap-2">
                 <button
                   onClick={decrease}
@@ -91,7 +85,7 @@ const ProductDetail = () => {
             <div className="flex justify-between items-center border-t pt-3 text-base md:text-lg">
               <span className="font-bold text-gray-800">Total Price:</span>
               <span className="text-2xl font-bold text-green-600">
-                {formatCurrency(discountedPrice * quantity)}
+                {formatCurrency(discountedPrice * quantity, currency)}
               </span>
             </div>
           </div>
